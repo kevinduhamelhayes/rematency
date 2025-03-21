@@ -1,181 +1,189 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ImageWithFallback } from "@/components/ImageWithFallback";
+"use client";
 
-// Sample data - in a real app, this would come from a database
-const sampleProducts = [
-  { 
-    id: 1, 
-    name: "Bicicleta", 
-    description: "Bicicleta en buen estado, ideal para la ciudad. Marca Trek, modelo urbano con canasto frontal y luces LED. Color azul marino, tamaño mediano. Incluye candado y bomba de aire manual. Apenas 2 años de uso, siempre guardada en interior.",
-    price: "$100",
-    imageUrl: "https://placehold.co/600x400/4299e1/ffffff?text=Bicicleta",
-    category: "Deportes y Aire Libre",
-    contactInfo: "juan@ejemplo.com",
-    location: "Ciudad de México",
-    publishedDate: "2023-05-15"
-  },
-  { 
-    id: 2, 
-    name: "Librería personal", 
-    description: "Colección de libros, ideal para comenzar un hobby. Más de 50 títulos de literatura clásica y contemporánea. Autores como García Márquez, Borges, Cortázar, Allende, entre otros. Todos en excelente estado, algunos son ediciones especiales.",
-    price: "$50",
-    imageUrl: "https://placehold.co/600x400/a0aec0/ffffff?text=Libros",
-    category: "Libros y Entretenimiento",
-    contactInfo: "maria@ejemplo.com",
-    location: "Guadalajara",
-    publishedDate: "2023-05-18"
-  },
-  { 
-    id: 3, 
-    name: "Televisor LED 32\"", 
-    description: "Televisor en perfecto estado, HDMI y USB. Marca Samsung, modelo Smart TV con acceso a Netflix, Prime Video y otras aplicaciones. Resolución Full HD, sonido envolvente. Incluye control remoto y base para pared.",
-    price: "$150",
-    imageUrl: "https://placehold.co/600x400/38b2ac/ffffff?text=Televisor",
-    category: "Electrónica",
-    contactInfo: "pedro@ejemplo.com",
-    location: "Monterrey",
-    publishedDate: "2023-05-20"
-  }
-];
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import ProductService, { Product } from '@/services/ProductService';
+import ImageWithFallback from '@/components/ImageWithFallback';
+import { FaMapMarkerAlt, FaCalendarAlt, FaTag, FaEnvelope, FaArrowLeft, FaShare } from 'react-icons/fa';
 
-interface ProductDetailPageProps {
-  params: {
-    id: string;
-  };
-}
+export default function ProductDetailPage() {
+  const params = useParams();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default function ProductDetailPage({ params }: ProductDetailPageProps) {
-  // In a real app, you would fetch the product from a database using the id
-  const productId = parseInt(params.id);
-  const product = sampleProducts.find((p) => p.id === productId);
+  useEffect(() => {
+    const id = Number(params.id);
+    if (isNaN(id)) {
+      setError('ID de producto inválido');
+      setLoading(false);
+      return;
+    }
 
-  if (!product) {
+    const foundProduct = ProductService.getProductById(id);
+    if (!foundProduct) {
+      setError('Producto no encontrado');
+      setLoading(false);
+      return;
+    }
+
+    setProduct(foundProduct);
+    setRelatedProducts(ProductService.getRelatedProducts(id, 4));
+    setLoading(false);
+  }, [params.id]);
+
+  // Handle loading state
+  if (loading) {
     return (
-      <main className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h1 className="mb-4 text-3xl font-bold">Producto no encontrado</h1>
-          <p className="mb-6 text-gray-600">
-            El producto que estás buscando no existe o ha sido eliminado.
-          </p>
-          <Link href="/productos">
-            <Button>Ver todos los productos</Button>
-          </Link>
+      <div className="container mx-auto px-4 py-16 flex justify-center">
+        <div className="animate-pulse space-y-8 w-full max-w-4xl">
+          <div className="h-64 bg-gray-300 rounded-lg"></div>
+          <div className="h-8 bg-gray-300 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-300 rounded w-full"></div>
+          <div className="h-4 bg-gray-300 rounded w-full"></div>
+          <div className="h-4 bg-gray-300 rounded w-2/3"></div>
         </div>
-      </main>
+      </div>
     );
   }
 
-  return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="mb-4">
-        <Link href="/productos" className="text-blue-600 hover:text-blue-800">
-          ← Volver a productos
-        </Link>
+  // Handle error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-xl mx-auto">
+          <h1 className="text-2xl text-red-600 font-bold mb-4">{error}</h1>
+          <p className="text-gray-600 mb-6">Lo sentimos, no pudimos encontrar el producto que estás buscando.</p>
+          <Link href="/productos" className="bg-indigo-600 text-white px-6 py-3 rounded-lg inline-flex items-center">
+            <FaArrowLeft className="mr-2" /> Volver a productos
+          </Link>
+        </div>
       </div>
-      
-      <div className="rounded-lg bg-white p-6 shadow-md">
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="relative min-h-[300px] overflow-hidden rounded-lg bg-gray-100 md:min-h-[450px]">
-            <ImageWithFallback
-              src={product.imageUrl || ''}
-              alt={product.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
+    );
+  }
+
+  if (!product) return null;
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center text-sm text-gray-500 mb-6">
+        <Link href="/" className="hover:text-indigo-600">Inicio</Link>
+        <span className="mx-2">/</span>
+        <Link href="/productos" className="hover:text-indigo-600">Productos</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-900">{product.name}</span>
+      </nav>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
+        {/* Product Image */}
+        <div className="bg-white rounded-lg shadow-md p-4 h-[400px] lg:h-[500px] relative">
+          <ImageWithFallback
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            style={{ objectFit: 'contain' }}
+            fallbackSrc="/images/placeholder.jpg"
+            className="rounded-lg"
+          />
+        </div>
+
+        {/* Product Details */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+          <div className="flex items-center mb-4">
+            <span className="text-3xl font-bold text-indigo-600">{product.price}</span>
           </div>
           
-          <div>
-            <h1 className="mb-2 text-3xl font-bold">{product.name}</h1>
-            <p className="mb-4 text-2xl font-bold text-blue-600">{product.price}</p>
-            
-            <div className="mb-6 space-y-4">
-              <div>
-                <h2 className="text-lg font-semibold">Descripción</h2>
-                <p className="text-gray-700">{product.description}</p>
+          <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+            <div className="prose prose-indigo max-w-none">
+              <p className="mb-4 text-gray-700">{product.description}</p>
+            </div>
+          </div>
+          
+          <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Detalles del anuncio</h3>
+            <div className="space-y-3">
+              <div className="flex items-center text-gray-600">
+                <FaTag className="mr-2 text-indigo-500" />
+                <span>Categoría: <span className="font-medium">{product.category}</span></span>
               </div>
               
-              <div>
-                <h2 className="text-lg font-semibold">Categoría</h2>
-                <p className="text-gray-700">{product.category}</p>
-              </div>
+              {product.location && (
+                <div className="flex items-center text-gray-600">
+                  <FaMapMarkerAlt className="mr-2 text-indigo-500" />
+                  <span>Ubicación: <span className="font-medium">{product.location}</span></span>
+                </div>
+              )}
               
-              <div>
-                <h2 className="text-lg font-semibold">Ubicación</h2>
-                <p className="text-gray-700">{product.location}</p>
+              {product.publishedDate && (
+                <div className="flex items-center text-gray-600">
+                  <FaCalendarAlt className="mr-2 text-indigo-500" />
+                  <span>Publicado: <span className="font-medium">{product.publishedDate}</span></span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="bg-white shadow-md rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Contactar al vendedor</h3>
+            {product.contactInfo ? (
+              <div className="flex items-center text-gray-600">
+                <FaEnvelope className="mr-2 text-indigo-500" />
+                <span>{product.contactInfo}</span>
               </div>
-              
-              <div>
-                <h2 className="text-lg font-semibold">Publicado el</h2>
-                <p className="text-gray-700">{product.publishedDate}</p>
-              </div>
-            </div>
-            
-            <div className="mb-6 rounded-lg bg-blue-50 p-4">
-              <h2 className="mb-2 text-lg font-semibold">Contactar al vendedor</h2>
-              <p className="text-gray-800">{product.contactInfo}</p>
-            </div>
-            
-            <div className="flex gap-4">
-              <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                Contactar
-              </Button>
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-                Guardar
-              </Button>
-            </div>
-
-            <div className="mt-8">
-              <blockquote className="border-l-4 border-blue-600 pl-4 italic text-gray-600">
-                "Cada objeto cuenta una historia; vende y comparte la tuya."
-              </blockquote>
-            </div>
+            ) : (
+              <p className="text-gray-600">Información de contacto no disponible.</p>
+            )}
+          </div>
+          
+          <div className="mt-8 flex space-x-4">
+            <Link href="/productos" className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg flex items-center">
+              <FaArrowLeft className="mr-2" /> Volver
+            </Link>
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg flex items-center">
+              <FaShare className="mr-2" /> Compartir
+            </button>
           </div>
         </div>
       </div>
-
-      <section className="mt-12">
-        <h2 className="mb-6 text-2xl font-bold">Productos similares</h2>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {sampleProducts
-            .filter((p) => p.id !== product.id)
-            .map((p) => (
-              <Link href={`/productos/${p.id}`} key={p.id}>
-                <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-                  <div className="relative mb-3 h-48 w-full overflow-hidden rounded-md">
+      
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-12 mb-8">
+          <h2 className="text-2xl font-bold mb-6">Productos relacionados</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((relatedProduct) => (
+              <Link href={`/productos/${relatedProduct.id}`} key={relatedProduct.id}>
+                <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <div className="h-48 relative">
                     <ImageWithFallback
-                      src={p.imageUrl || ''}
-                      alt={p.name}
+                      src={relatedProduct.imageUrl}
+                      alt={relatedProduct.name}
                       fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      style={{ objectFit: 'cover' }}
+                      fallbackSrc="/images/placeholder.jpg"
                     />
                   </div>
-                  <h3 className="mb-2 text-xl font-semibold">{p.name}</h3>
-                  <p className="text-lg font-bold text-blue-600">{p.price}</p>
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-semibold text-gray-800">{relatedProduct.name}</h3>
+                      <span className="text-lg font-bold text-indigo-600">{relatedProduct.price}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
+                        {relatedProduct.category}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </Link>
             ))}
+          </div>
         </div>
-      </section>
-    </main>
+      )}
+    </div>
   );
 } 
