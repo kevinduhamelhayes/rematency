@@ -9,6 +9,8 @@ interface ImageWithFallbackProps {
   fill?: boolean;
   className?: string;
   sizes?: string;
+  fallbackSrc?: string;
+  style?: React.CSSProperties;
 }
 
 export function ImageWithFallback({
@@ -17,22 +19,29 @@ export function ImageWithFallback({
   fill = false,
   className,
   sizes,
+  fallbackSrc,
+  style,
   ...props
 }: ImageWithFallbackProps & Omit<React.ComponentProps<typeof Image>, "src" | "alt" | "fill">) {
   const [error, setError] = useState(false);
 
-  // Default placeholder color
-  const fallbackSrc = `https://placehold.co/600x400/e2e8f0/475569?text=${encodeURIComponent(alt)}`;
+  // Default placeholder color or use provided fallback
+  const defaultFallback = `https://placehold.co/600x400/e2e8f0/475569?text=${encodeURIComponent(alt)}`;
+  const fallbackImage = fallbackSrc || defaultFallback;
 
   return (
     <Image
-      src={error ? fallbackSrc : src}
+      src={error ? fallbackImage : src}
       alt={alt}
       fill={fill}
       className={className}
       sizes={sizes}
+      style={style}
       onError={() => setError(true)}
       {...props}
     />
   );
-} 
+}
+
+// Add default export for compatibility
+export default ImageWithFallback; 
