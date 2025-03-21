@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ImageWithFallback } from "@/components/ImageWithFallback";
 
 // Sample data - in a real app, this would come from a database
 const sampleProducts = [
@@ -9,7 +9,7 @@ const sampleProducts = [
     name: "Bicicleta", 
     description: "Bicicleta en buen estado, ideal para la ciudad. Marca Trek, modelo urbano con canasto frontal y luces LED. Color azul marino, tamaño mediano. Incluye candado y bomba de aire manual. Apenas 2 años de uso, siempre guardada en interior.",
     price: "$100",
-    imageUrl: "/images/products/bicycle.jpg",
+    imageUrl: "https://placehold.co/600x400/4299e1/ffffff?text=Bicicleta",
     category: "Deportes y Aire Libre",
     contactInfo: "juan@ejemplo.com",
     location: "Ciudad de México",
@@ -20,7 +20,7 @@ const sampleProducts = [
     name: "Librería personal", 
     description: "Colección de libros, ideal para comenzar un hobby. Más de 50 títulos de literatura clásica y contemporánea. Autores como García Márquez, Borges, Cortázar, Allende, entre otros. Todos en excelente estado, algunos son ediciones especiales.",
     price: "$50",
-    imageUrl: "/images/products/books.jpg",
+    imageUrl: "https://placehold.co/600x400/a0aec0/ffffff?text=Libros",
     category: "Libros y Entretenimiento",
     contactInfo: "maria@ejemplo.com",
     location: "Guadalajara",
@@ -31,7 +31,7 @@ const sampleProducts = [
     name: "Televisor LED 32\"", 
     description: "Televisor en perfecto estado, HDMI y USB. Marca Samsung, modelo Smart TV con acceso a Netflix, Prime Video y otras aplicaciones. Resolución Full HD, sonido envolvente. Incluye control remoto y base para pared.",
     price: "$150",
-    imageUrl: "/images/products/tv.jpg",
+    imageUrl: "https://placehold.co/600x400/38b2ac/ffffff?text=Televisor",
     category: "Electrónica",
     contactInfo: "pedro@ejemplo.com",
     location: "Monterrey",
@@ -77,19 +77,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       <div className="rounded-lg bg-white p-6 shadow-md">
         <div className="grid gap-8 md:grid-cols-2">
           <div className="relative min-h-[300px] overflow-hidden rounded-lg bg-gray-100 md:min-h-[450px]">
-            {product.imageUrl ? (
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <p className="text-gray-500">Sin imagen disponible</p>
-              </div>
-            )}
+            <ImageWithFallback
+              src={product.imageUrl || ''}
+              alt={product.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
           </div>
           
           <div>
@@ -167,15 +161,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <Link href={`/productos/${p.id}`} key={p.id}>
                 <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
                   <div className="relative mb-3 h-48 w-full overflow-hidden rounded-md">
-                    {p.imageUrl && (
-                      <Image
-                        src={p.imageUrl}
-                        alt={p.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    )}
+                    <ImageWithFallback
+                      src={p.imageUrl || ''}
+                      alt={p.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
                   </div>
                   <h3 className="mb-2 text-xl font-semibold">{p.name}</h3>
                   <p className="text-lg font-bold text-blue-600">{p.price}</p>

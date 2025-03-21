@@ -7,56 +7,56 @@ const sampleProducts = [
     name: "Bicicleta", 
     description: "Bicicleta en buen estado, ideal para la ciudad.", 
     price: "$100",
-    imageUrl: "/images/products/bicycle.jpg" 
+    imageUrl: "https://placehold.co/600x400/4299e1/ffffff?text=Bicicleta" 
   },
   { 
     id: 2, 
     name: "Librería personal", 
     description: "Colección de libros, ideal para comenzar un hobby.", 
     price: "$50",
-    imageUrl: "/images/products/books.jpg" 
+    imageUrl: "https://placehold.co/600x400/a0aec0/ffffff?text=Libros" 
   },
   { 
     id: 3, 
     name: "Televisor LED 32\"", 
     description: "Televisor en perfecto estado, HDMI y USB.", 
     price: "$150",
-    imageUrl: "/images/products/tv.jpg" 
+    imageUrl: "https://placehold.co/600x400/38b2ac/ffffff?text=Televisor" 
   },
   { 
     id: 4, 
     name: "Juego de sofá", 
     description: "Sofá de 3 plazas y sillón, color beige.", 
     price: "$200",
-    imageUrl: "/images/products/sofa.jpg" 
+    imageUrl: "https://placehold.co/600x400/ed8936/ffffff?text=Sof%C3%A1" 
   },
   { 
     id: 5, 
     name: "Escritorio", 
     description: "Escritorio de madera con cajones.", 
     price: "$80",
-    imageUrl: "/images/products/desk.jpg" 
+    imageUrl: "https://placehold.co/600x400/9f7aea/ffffff?text=Escritorio" 
   },
   { 
     id: 6, 
     name: "Batería de cocina", 
     description: "Juego completo de ollas y sartenes.", 
     price: "$75",
-    imageUrl: "/images/products/cookware.jpg" 
+    imageUrl: "https://placehold.co/600x400/667eea/ffffff?text=Cocina" 
   },
   { 
     id: 7, 
     name: "Guitarra acústica", 
     description: "Guitarra con funda, bien cuidada.", 
     price: "$120",
-    imageUrl: "/images/products/guitar.jpg" 
+    imageUrl: "https://placehold.co/600x400/f6993f/ffffff?text=Guitarra" 
   },
   { 
     id: 8, 
     name: "Mesa de comedor", 
     description: "Mesa extensible con 4 sillas.", 
     price: "$180",
-    imageUrl: "/images/products/table.jpg" 
+    imageUrl: "https://placehold.co/600x400/4fd1c5/ffffff?text=Mesa" 
   }
 ];
 
